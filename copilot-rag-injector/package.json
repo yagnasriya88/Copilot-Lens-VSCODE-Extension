@@ -1,0 +1,114 @@
+{
+  "name": "copilot-rag-injector",
+  "displayName": "Copilot RAG Context Injector",
+  "description": "Enhances GitHub Copilot Chat with Cursor-style codebase awareness by injecting AST-parsed RAG context at query time.",
+  "version": "0.1.0",
+  "publisher": "sriya",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "AI",
+    "Chat",
+    "Programming Languages"
+  ],
+  "keywords": [
+    "copilot",
+    "rag",
+    "context",
+    "tree-sitter",
+    "embeddings",
+    "codebase-awareness"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "chatParticipants": [
+      {
+        "id": "copilot-rag-injector.assistant",
+        "name": "RAG",
+        "fullName": "RAG Context Injector",
+        "description": "Searches your codebase and injects relevant code context into your Copilot Chat prompt.",
+        "isSticky": false
+      }
+    ],
+    "commands": [
+      {
+        "command": "copilot-rag-injector.reindex",
+        "title": "RAG: Re-index Workspace",
+        "category": "Copilot RAG"
+      }
+    ],
+    "configuration": {
+      "title": "Copilot RAG Context Injector",
+      "properties": {
+        "copilot-rag-injector.topK": {
+          "type": "number",
+          "default": 5,
+          "minimum": 1,
+          "maximum": 20,
+          "description": "Number of code chunks to inject as context."
+        },
+        "copilot-rag-injector.maxTokensPerChunk": {
+          "type": "number",
+          "default": 512,
+          "minimum": 64,
+          "maximum": 2048,
+          "description": "Maximum tokens per code chunk before splitting."
+        },
+        "copilot-rag-injector.excludePatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/.git/**",
+            "**/build/**",
+            "**/*.min.js"
+          ],
+          "description": "Glob patterns to exclude from indexing."
+        },
+        "copilot-rag-injector.embeddingModel": {
+          "type": "string",
+          "enum": [
+            "local",
+            "openai"
+          ],
+          "default": "local",
+          "description": "Embedding model to use. 'local' uses all-MiniLM-L6-v2 via ONNX."
+        },
+        "copilot-rag-injector.autoReindex": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically re-index files on save."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "node esbuild.js --production",
+    "watch": "node esbuild.js --watch",
+    "compile": "node esbuild.js",
+    "lint": "eslint src --ext ts",
+    "test": "mocha"
+  },
+  "dependencies": {
+    "@xenova/transformers": "^2.0.1",
+    "web-tree-sitter": "^0.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/vscode": "^1.90.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
+    "esbuild": "^0.28.0",
+    "esbuild-plugin-copy": "^2.1.0",
+    "typescript": "^5.5.0"
+  }
+}
